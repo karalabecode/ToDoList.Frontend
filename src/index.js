@@ -4,7 +4,12 @@ onload = () => {
   loginForm.onsubmit = (event) => {
     event.preventDefault();
     const username = document.getElementById('username');
-    alert(`Hello, ${username.value}`);
+
+    if (username.value) {
+      alert(`Hello, ${username.value}`);
+    } else {
+      alert("Please set username!");
+    }
     return false;
   };
 };
