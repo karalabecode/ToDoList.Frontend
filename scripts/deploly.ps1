@@ -1,6 +1,7 @@
 param(
   [Parameter(Mandatory=$true)]
-  [String]$ws
+  [ValidateSet('dev')]
+  [String]$workspace
 )
 
 & ./generate.ps1;
@@ -8,7 +9,18 @@ param(
 if (!$?) { return; }
 
 cd ../infrastructure;
-tf init && tf workspace select $ws && tf plan -out plan.tfplan;
+
+$Env:AWS_PROFILE="tdl-${workspace}"
+
+aws sts get-caller-identity;
+
+if (-not $?) {
+  aws sso login --profile $Env:AWS_PROFILE
+}
+
+$Env:AWS_PROFILE="tdl-${workspace}-dep"
+
+tf init && tf workspace select $workspace && tf plan -out plan.tfplan;
 
 if ($?) {
   $answer = Read-Host "Looks ok? [y/N]"
